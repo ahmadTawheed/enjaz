@@ -13,7 +13,6 @@
     
     <!-- Animate.css -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
-
     <link rel="icon" href="./logo.png">
     
     <!-- SweetAlert2 -->
@@ -21,18 +20,6 @@
     
     <!-- Sortable.js -->
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
-
-
-    <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-WSVM58FM86"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-WSVM58FM86');
-</script>
-
     
     <!-- Custom Styles -->
     <style>
@@ -124,6 +111,43 @@
                 opacity: 0;
             }
         }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            padding: 15px;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transform: translateY(-100px);
+            transition: transform 0.3s ease;
+        }
+        
+        .notification.show {
+            transform: translateY(0);
+        }
+        
+        .break-timer {
+            font-size: 4rem;
+            font-weight: bold;
+            color: #10b981;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .session-info {
+            background: rgba(99, 102, 241, 0.1);
+            border: 2px solid #6366f1;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
@@ -170,7 +194,7 @@
             </div>
         </div>
     </div>
-
+    
     <!-- التطبيق الرئيسي -->
     <div id="mainApp" class="hidden min-h-screen pb-20">
         <!-- رأس الصفحة -->
@@ -212,12 +236,12 @@
                 </div>
             </div>
         </header>
-
+        
         <!-- المحتوى الرئيسي -->
         <main id="mainContent" class="container mx-auto px-4 py-6">
             <!-- سيتم تحميل الصفحات هنا ديناميكياً -->
         </main>
-
+        
         <!-- شريط التنقل السفلي -->
         <nav class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md shadow-lg border-t">
             <div class="grid grid-cols-5">
@@ -244,7 +268,7 @@
             </div>
         </nav>
     </div>
-
+    
     <!-- نافذة إنشاء المهام -->
     <div id="taskModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animate__animated animate__fadeInUp">
@@ -259,11 +283,11 @@
                 <!-- شريط التقدم -->
                 <div class="mb-6">
                     <div class="flex justify-between mb-2">
-                        <span id="stepText">الخطوة 1 من 6</span>
-                        <span id="progressPercent">17%</span>
+                        <span id="stepText">الخطوة 1 من 7</span>
+                        <span id="progressPercent">14%</span>
                     </div>
                     <div class="bg-gray-200 rounded-full h-2 overflow-hidden">
-                        <div id="progressBar" class="bg-gradient-to-r from-purple-500 to-pink-500 h-full rounded-full transition-all duration-300" style="width: 17%"></div>
+                        <div id="progressBar" class="bg-gradient-to-r from-purple-500 to-pink-500 h-full rounded-full transition-all duration-300" style="width: 14%"></div>
                     </div>
                 </div>
                 
@@ -286,7 +310,76 @@
             </div>
         </div>
     </div>
-
+    
+    <!-- نافذة تعديل المهام -->
+    <div id="editTaskModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animate__animated animate__fadeInUp">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold">تعديل مهمة</h3>
+                    <button onclick="closeEditTaskModal()" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <div id="editTaskContent">
+                    <!-- سيتم تحميل محتوى التعديل هنا -->
+                </div>
+                
+                <div class="flex justify-between mt-6">
+                    <button onclick="closeEditTaskModal()" class="px-6 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition">
+                        إلغاء
+                    </button>
+                    <button onclick="saveEditedTask()" class="px-6 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition">
+                        حفظ التغييرات
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- نافذة الراحة -->
+    <div id="breakModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full animate__animated animate__fadeInUp">
+            <div class="p-6">
+                <div class="text-center mb-6">
+                    <i class="fas fa-coffee text-6xl text-green-500 mb-4"></i>
+                    <h3 class="text-2xl font-bold text-gray-800 mb-2">وقت الراحة!</h3>
+                    <p class="text-gray-600">استرح قليلاً قبل الجلسة التالية</p>
+                </div>
+                
+                <div class="break-timer" id="breakTimerDisplay">05:00</div>
+                
+                <div class="session-info text-center">
+                    <p class="text-sm text-gray-600 mb-2">
+                        الجلسة الحالية: <span id="currentSessionInfo" class="font-bold text-purple-600">1</span> من <span id="totalSessionsInfo" class="font-bold text-purple-600">1</span>
+                    </p>
+                    <p class="text-sm text-gray-600">
+                        الجلسة التالية: <span id="nextSessionTime" class="font-bold text-blue-600">25</span> دقيقة
+                    </p>
+                </div>
+                
+                <div class="grid grid-cols-1 gap-3 mt-6">
+                    <button onclick="skipBreak()" class="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition">
+                        <i class="fas fa-forward ml-2"></i>
+                        استمر دون راحة
+                    </button>
+                    <button onclick="pauseDuringBreak()" class="bg-yellow-500 text-white px-6 py-3 rounded-lg hover:bg-yellow-600 transition">
+                        <i class="fas fa-pause ml-2"></i>
+                        إيقاف المؤقت
+                    </button>
+                    <button onclick="continueBreak()" class="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition">
+                        <i class="fas fa-play ml-2"></i>
+                        استمر في الراحة
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- نافذة الإشعارات -->
+    <div id="notificationContainer"></div>
+    
     <script>
         // البيانات العامة
         let heroData = {
@@ -307,8 +400,13 @@
         let currentStep = 1;
         let newTask = {};
         let timerInterval = null;
+        let breakTimerInterval = null;
         let selectedAvatar = 1;
-
+        let notificationInterval = null;
+        let editingTaskIndex = -1;
+        let editingTaskType = '';
+        let breakTimeLeft = 0;
+        
         // رسائل التحفيز
         const motivationalMessages = [
             "أنت تبذل مجهوداً رائعاً! استمر!",
@@ -320,7 +418,7 @@
             "كل مهمة منجزة هي انتصار جديد",
             "أنت تبني مستقبلاً مشرقاً"
         ];
-
+        
         // تهيئة التطبيق
         function initApp() {
             loadData();
@@ -336,8 +434,11 @@
                 document.getElementById('startScreen').style.display = 'flex';
                 document.getElementById('mainApp').classList.add('hidden');
             }
+            
+            // بدء فحص الإشعارات
+            startNotificationCheck();
         }
-
+        
         // تحميل البيانات من Local Storage
         function loadData() {
             try {
@@ -369,7 +470,7 @@
                 };
             }
         }
-
+        
         // حفظ البيانات في Local Storage
         function saveData() {
             try {
@@ -386,7 +487,7 @@
                 });
             }
         }
-
+        
         // اختيار الأفاتار
         function selectAvatar(avatar) {
             selectedAvatar = avatar;
@@ -397,7 +498,7 @@
             event.target.closest('.avatar-btn').classList.remove('bg-white/30');
             event.target.closest('.avatar-btn').classList.add('bg-white/70');
         }
-
+        
         // بدء الرحلة
         function startJourney() {
             const name = document.getElementById('heroName').value.trim();
@@ -424,13 +525,13 @@
                 showMainApp();
             }, 1000);
         }
-
+        
         // عرض التطبيق الرئيسي
         function showMainApp() {
             updateHeroDisplay();
             showPage('dashboard');
         }
-
+        
         // تحديث عرض البطل
         function updateHeroDisplay() {
             document.getElementById('heroDisplayName').textContent = heroData.name;
@@ -447,7 +548,7 @@
             const avatarIcons = ['fa-user', 'fa-user-ninja', 'fa-user-astronaut', 'fa-user-secret', 'fa-user-tie'];
             document.getElementById('userAvatar').innerHTML = `<i class="fas ${avatarIcons[heroData.avatar]}"></i>`;
         }
-
+        
         // عرض الصفحات
         function showPage(pageName) {
             // تحديث شريط التنقل
@@ -477,7 +578,7 @@
                     break;
             }
         }
-
+        
         // تحميل لوحة المهام
         function loadDashboard() {
             const content = document.getElementById('mainContent');
@@ -493,6 +594,12 @@
             `;
             
             if (tasks.active) {
+                // حساب الإجماليات
+                const totalHours = Math.floor(tasks.active.totalTime / 60);
+                const totalMinutes = tasks.active.totalTime % 60;
+                const totalSessions = tasks.active.sessionCount;
+                const currentSession = tasks.active.currentSession;
+                
                 html += `
                     <div class="task-card rounded-2xl p-6 shadow-xl">
                         <div class="text-center mb-6">
@@ -500,11 +607,32 @@
                             <p class="text-gray-600">${tasks.active.goal}</p>
                         </div>
                         
+                        <!-- معلومات الوقت -->
+                        <div class="session-info mb-6">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                                <div>
+                                    <i class="fas fa-hourglass-half text-2xl text-blue-500 mb-2"></i>
+                                    <p class="text-sm text-gray-600">الوقت الإجمالي</p>
+                                    <p class="font-bold text-lg">${totalHours} ساعة ${totalMinutes} دقيقة</p>
+                                </div>
+                                <div>
+                                    <i class="fas fa-layer-group text-2xl text-purple-500 mb-2"></i>
+                                    <p class="text-sm text-gray-600">فترات العمل</p>
+                                    <p class="font-bold text-lg">${currentSession} / ${totalSessions}</p>
+                                </div>
+                                <div>
+                                    <i class="fas fa-coffee text-2xl text-green-500 mb-2"></i>
+                                    <p class="text-sm text-gray-600">وقت الراحة</p>
+                                    <p class="font-bold text-lg">${tasks.active.breakTime} دقيقة</p>
+                                </div>
+                            </div>
+                        </div>
+                        
                         <div class="text-center mb-6">
                             <div class="timer-display text-6xl font-bold text-orange-500 mb-2" id="timerDisplay">
                                 ${formatTime(tasks.active.timeLeft || tasks.active.duration)}
                             </div>
-                            <div class="text-sm text-gray-500">الوقت المتبقي</div>
+                            <div class="text-sm text-gray-500">الوقت المتبقي في الجلسة الحالية</div>
                         </div>
                         
                         <div class="bg-yellow-50 border-r-4 border-yellow-400 p-4 rounded-lg mb-6">
@@ -550,7 +678,7 @@
             
             content.innerHTML = html;
         }
-
+        
         // تحميل قاعة الشهرة
         function loadHallOfFame() {
             const content = document.getElementById('mainContent');
@@ -603,7 +731,7 @@
             
             content.innerHTML = html;
         }
-
+        
         // تحميل المهام الروتينية
         function loadRoutines() {
             const content = document.getElementById('mainContent');
@@ -627,8 +755,14 @@
                 tasks.routines.forEach((task, index) => {
                     html += `
                         <div class="task-card rounded-xl p-6 shadow-lg">
-                            <div class="flex justify-between items-center mb-4">
-                                <h3 class="text-xl font-bold text-blue-600">${task.name}</h3>
+                            <div class="flex justify-between items-start mb-4">
+                                <div>
+                                    <h3 class="text-xl font-bold text-blue-600">${task.name}</h3>
+                                    <p class="text-gray-600 text-sm">
+                                        <i class="fas fa-clock ml-1"></i>
+                                        ${task.sessionTime} دقيقة عمل / ${task.breakTime} دقيقة راحة
+                                    </p>
+                                </div>
                                 <div class="flex space-x-2 space-x-reverse">
                                     <button onclick="editRoutine(${index})" class="bg-yellow-500 text-white px-3 py-1 rounded-lg hover:bg-yellow-600 transition text-sm">
                                         <i class="fas fa-edit"></i>
@@ -651,7 +785,7 @@
             
             content.innerHTML = html;
         }
-
+        
         // تحميل مهام المستقبل
         function loadFutureTasks() {
             const content = document.getElementById('mainContent');
@@ -684,7 +818,11 @@
                                     <h3 class="text-xl font-bold text-green-600">${task.name}</h3>
                                     <p class="text-gray-600 text-sm">
                                         <i class="fas fa-calendar ml-1"></i>
-                                        ${new Date(task.startDate).toLocaleDateString('ar-SA')}
+                                        ${new Date(task.startDate).toLocaleDateString('ar-SA')} ${new Date(task.startDate).toLocaleTimeString('ar-SA', {hour: '2-digit', minute:'2-digit'})}
+                                    </p>
+                                    <p class="text-gray-600 text-sm">
+                                        <i class="fas fa-clock ml-1"></i>
+                                        ${task.sessionTime} دقيقة عمل / ${task.breakTime} دقيقة راحة
                                     </p>
                                 </div>
                                 <div class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm">
@@ -693,6 +831,10 @@
                             </div>
                             <p class="text-gray-700 mb-4">${task.goal}</p>
                             <div class="flex space-x-2 space-x-reverse">
+                                <button onclick="startFutureTask(${originalIndex})" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition text-sm">
+                                    <i class="fas fa-play ml-1"></i>
+                                    ابدأ المهمة
+                                </button>
                                 <button onclick="editFutureTask(${originalIndex})" class="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition text-sm">
                                     <i class="fas fa-edit ml-1"></i>
                                     تعديل
@@ -723,7 +865,7 @@
             
             content.innerHTML = html;
         }
-
+        
         // تحميل الإعدادات
         function loadSettings() {
             const content = document.getElementById('mainContent');
@@ -796,7 +938,7 @@
             const avatarIcons = ['fa-user', 'fa-user-ninja', 'fa-user-astronaut', 'fa-user-secret', 'fa-user-tie'];
             document.getElementById('settingsAvatar').innerHTML = `<i class="fas ${avatarIcons[heroData.avatar]}"></i>`;
         }
-
+        
         // فتح نافذة إنشاء المهام
         function openTaskModal() {
             currentStep = 1;
@@ -804,7 +946,7 @@
             document.getElementById('taskModal').classList.remove('hidden');
             updateStepContent();
         }
-
+        
         // إغلاق نافذة إنشاء المهام
         function closeTaskModal() {
             document.getElementById('taskModal').classList.add('hidden');
@@ -813,7 +955,7 @@
                 timerInterval = null;
             }
         }
-
+        
         // تحديث محتوى الخطوة
         function updateStepContent() {
             const stepContent = document.getElementById('stepContent');
@@ -823,9 +965,9 @@
             const prevBtn = document.getElementById('prevBtn');
             const nextBtn = document.getElementById('nextBtn');
             
-            stepText.textContent = `الخطوة ${currentStep} من 6`;
-            progressPercent.textContent = `${Math.round((currentStep / 6) * 100)}%`;
-            progressBar.style.width = `${(currentStep / 6) * 100}%`;
+            stepText.textContent = `الخطوة ${currentStep} من 7`;
+            progressPercent.textContent = `${Math.round((currentStep / 7) * 100)}%`;
+            progressBar.style.width = `${(currentStep / 7) * 100}%`;
             
             prevBtn.disabled = currentStep === 1;
             
@@ -853,17 +995,40 @@
                 case 3:
                     stepContent.innerHTML = `
                         <div class="text-center">
-                            <i class="fas fa-calendar-check text-6xl text-green-500 mb-4"></i>
-                            <h4 class="text-xl font-bold mb-4">متى ستبدأ مهمتك؟</h4>
-                            <input type="datetime-local" id="taskStartDate" 
-                                   class="w-full px-4 py-3 rounded-lg border-2 border-green-300 focus:border-green-500 focus:outline-none text-lg mb-4">
-                            <h4 class="text-xl font-bold mb-4">ما هو الموعد النهائي للنصر؟</h4>
-                            <input type="datetime-local" id="taskEndDate" 
-                                   class="w-full px-4 py-3 rounded-lg border-2 border-green-300 focus:border-green-500 focus:outline-none text-lg">
+                            <i class="fas fa-hourglass-half text-6xl text-blue-500 mb-4"></i>
+                            <h4 class="text-xl font-bold mb-4">ما هو إجمالي الوقت اللازم لإنجاز المهمة؟</h4>
+                            <div class="flex items-center justify-center space-x-2 space-x-reverse mb-4">
+                                <input type="number" id="totalHours" min="0" max="23" value="1" 
+                                       class="w-20 px-3 py-2 rounded-lg border-2 border-blue-300 focus:border-blue-500 focus:outline-none text-center">
+                                <span>ساعة</span>
+                                <input type="number" id="totalMinutes" min="0" max="59" value="0" 
+                                       class="w-20 px-3 py-2 rounded-lg border-2 border-blue-300 focus:border-blue-500 focus:outline-none text-center">
+                                <span>دقيقة</span>
+                            </div>
                         </div>
                     `;
                     break;
                 case 4:
+                    stepContent.innerHTML = `
+                        <div class="text-center">
+                            <i class="fas fa-stopwatch text-6xl text-green-500 mb-4"></i>
+                            <h4 class="text-xl font-bold mb-4">كم ستستمر كل فترة عمل؟</h4>
+                            <div class="flex items-center justify-center space-x-2 space-x-reverse mb-4">
+                                <input type="number" id="sessionMinutes" min="1" max="120" value="25" 
+                                       class="w-20 px-3 py-2 rounded-lg border-2 border-green-300 focus:border-green-500 focus:outline-none text-center">
+                                <span>دقيقة</span>
+                            </div>
+                            
+                            <h4 class="text-xl font-bold mb-4">كم سيكون وقت الراحة بين الفترات؟</h4>
+                            <div class="flex items-center justify-center space-x-2 space-x-reverse">
+                                <input type="number" id="breakMinutes" min="1" max="60" value="5" 
+                                       class="w-20 px-3 py-2 rounded-lg border-2 border-green-300 focus:border-green-500 focus:outline-none text-center">
+                                <span>دقيقة</span>
+                            </div>
+                        </div>
+                    `;
+                    break;
+                case 5:
                     stepContent.innerHTML = `
                         <div class="text-center">
                             <i class="fas fa-gem text-6xl text-yellow-500 mb-4"></i>
@@ -873,21 +1038,21 @@
                         </div>
                     `;
                     break;
-                case 5:
+                case 6:
                     stepContent.innerHTML = `
                         <div class="text-center">
-                            <i class="fas fa-flag text-6xl text-blue-500 mb-4"></i>
+                            <i class="fas fa-flag text-6xl text-indigo-500 mb-4"></i>
                             <h4 class="text-xl font-bold mb-4">ما هي أولوية هذه المهمة؟</h4>
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-                                <button onclick="selectPriority('مهمة عاجلة')" class="priority-btn p-6 rounded-lg border-2 border-gray-300 hover:border-blue-500 hover:bg-blue-50 transition">
+                                <button onclick="selectPriority('مهمة عاجلة')" class="priority-btn p-6 rounded-lg border-2 border-gray-300 hover:border-indigo-500 hover:bg-indigo-50 transition">
                                     <i class="fas fa-fire text-3xl text-red-500 mb-2"></i>
                                     <div class="font-bold">مهمة عاجلة</div>
                                 </button>
-                                <button onclick="selectPriority('مهمة جانبية')" class="priority-btn p-6 rounded-lg border-2 border-gray-300 hover:border-blue-500 hover:bg-blue-50 transition">
+                                <button onclick="selectPriority('مهمة جانبية')" class="priority-btn p-6 rounded-lg border-2 border-gray-300 hover:border-indigo-500 hover:bg-indigo-50 transition">
                                     <i class="fas fa-leaf text-3xl text-green-500 mb-2"></i>
                                     <div class="font-bold">مهمة جانبية</div>
                                 </button>
-                                <button onclick="selectPriority('مهمة طويلة المدى')" class="priority-btn p-6 rounded-lg border-2 border-gray-300 hover:border-blue-500 hover:bg-blue-50 transition">
+                                <button onclick="selectPriority('مهمة طويلة المدى')" class="priority-btn p-6 rounded-lg border-2 border-gray-300 hover:border-indigo-500 hover:bg-indigo-50 transition">
                                     <i class="fas fa-mountain text-3xl text-purple-500 mb-2"></i>
                                     <div class="font-bold">مهمة طويلة المدى</div>
                                 </button>
@@ -895,27 +1060,82 @@
                         </div>
                     `;
                     break;
-                case 6:
+                case 7:
                     stepContent.innerHTML = `
                         <div class="text-center">
-                            <i class="fas fa-sync-alt text-6xl text-indigo-500 mb-4"></i>
-                            <h4 class="text-xl font-bold mb-4">هل هذه مهمة روتينية؟</h4>
-                            <div class="flex justify-center items-center space-x-4 space-x-reverse mt-6">
-                                <span class="text-lg">لا</span>
-                                <label class="relative inline-flex items-center cursor-pointer">
-                                    <input type="checkbox" id="isRoutine" class="sr-only peer">
-                                    <div class="w-14 h-7 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:right-[2px] after:bg-white after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-indigo-500"></div>
-                                </label>
-                                <span class="text-lg">نعم</span>
+                            <i class="fas fa-calendar-check text-6xl text-teal-500 mb-4"></i>
+                            <h4 class="text-xl font-bold mb-4">متى تريد بدء هذه المهمة؟</h4>
+                            <div class="flex flex-col items-center space-y-4">
+                                <div class="flex items-center space-x-4 space-x-reverse">
+                                    <button onclick="selectStartOption('now')" id="startNowBtn" class="start-option-btn px-6 py-3 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition">
+                                        <i class="fas fa-play-circle ml-2"></i>
+                                        ابدأ الآن
+                                    </button>
+                                    <button onclick="selectStartOption('later')" id="startLaterBtn" class="start-option-btn px-6 py-3 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition">
+                                        <i class="fas fa-clock ml-2"></i>
+                                        لاحقاً
+                                    </button>
+                                </div>
+                                
+                                <div id="dateTimeContainer" class="hidden w-full">
+                                    <div class="mb-4">
+                                        <label class="block text-right mb-2">تاريخ البدء</label>
+                                        <input type="datetime-local" id="taskStartDate" 
+                                               class="w-full px-4 py-3 rounded-lg border-2 border-teal-300 focus:border-teal-500 focus:outline-none">
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-4">
+                                    <label class="flex items-center space-x-2 space-x-reverse">
+                                        <input type="checkbox" id="isRoutine" class="form-checkbox h-5 w-5 text-teal-600">
+                                        <span>جعل هذه مهمة روتينية</span>
+                                    </label>
+                                </div>
                             </div>
                         </div>
                     `;
-                    nextBtn.textContent = 'بدء المهمة';
-                    nextBtn.innerHTML = 'بدء المهمة <i class="fas fa-rocket mr-2"></i>';
+                    nextBtn.textContent = 'إنشاء المهمة';
+                    nextBtn.innerHTML = 'إنشاء المهمة <i class="fas fa-rocket mr-2"></i>';
                     break;
             }
         }
-
+        
+        // اختيار وقت البدء
+        function selectStartOption(option) {
+            const startNowBtn = document.getElementById('startNowBtn');
+            const startLaterBtn = document.getElementById('startLaterBtn');
+            const dateTimeContainer = document.getElementById('dateTimeContainer');
+            
+            if (option === 'now') {
+                startNowBtn.classList.remove('bg-gray-300', 'text-gray-700');
+                startNowBtn.classList.add('bg-teal-500', 'text-white');
+                startLaterBtn.classList.remove('bg-teal-500', 'text-white');
+                startLaterBtn.classList.add('bg-gray-300', 'text-gray-700');
+                dateTimeContainer.classList.add('hidden');
+                newTask.startNow = true;
+            } else {
+                startLaterBtn.classList.remove('bg-gray-300', 'text-gray-700');
+                startLaterBtn.classList.add('bg-teal-500', 'text-white');
+                startNowBtn.classList.remove('bg-teal-500', 'text-white');
+                startNowBtn.classList.add('bg-gray-300', 'text-gray-700');
+                dateTimeContainer.classList.remove('hidden');
+                
+                // تعيين تاريخ افتراضي ليوم الغد
+                const tomorrow = new Date();
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                tomorrow.setHours(9, 0, 0, 0);
+                
+                const year = tomorrow.getFullYear();
+                const month = String(tomorrow.getMonth() + 1).padStart(2, '0');
+                const day = String(tomorrow.getDate()).padStart(2, '0');
+                const hours = String(tomorrow.getHours()).padStart(2, '0');
+                const minutes = String(tomorrow.getMinutes()).padStart(2, '0');
+                
+                document.getElementById('taskStartDate').value = `${year}-${month}-${day}T${hours}:${minutes}`;
+                newTask.startNow = false;
+            }
+        }
+        
         // الخطوة التالية
         function nextStep() {
             // حفظ بيانات الخطوة الحالية
@@ -949,22 +1169,41 @@
                     newTask.goal = goal;
                     break;
                 case 3:
-                    const startDate = document.getElementById('taskStartDate').value;
-                    const endDate = document.getElementById('taskEndDate').value;
-                    if (!startDate || !endDate) {
+                    const totalHours = parseInt(document.getElementById('totalHours').value) || 0;
+                    const totalMinutes = parseInt(document.getElementById('totalMinutes').value) || 0;
+                    
+                    if (totalHours === 0 && totalMinutes === 0) {
                         Swal.fire({
                             icon: 'warning',
-                            title: 'التواريخ مطلوبة',
-                            text: 'رجاءً أدخل تاريخ البدء والانتهاء!',
+                            title: 'الوقت مطلوب',
+                            text: 'رجاءً أدخل الوقت الإجمالي للمهمة!',
                             confirmButtonText: 'حسناً',
                             confirmButtonColor: '#8b5cf6'
                         });
                         return;
                     }
-                    newTask.startDate = startDate;
-                    newTask.endDate = endDate;
+                    
+                    newTask.totalTime = totalHours * 60 + totalMinutes; // التحويل إلى دقائق
                     break;
                 case 4:
+                    const sessionMinutes = parseInt(document.getElementById('sessionMinutes').value) || 25;
+                    const breakMinutes = parseInt(document.getElementById('breakMinutes').value) || 5;
+                    
+                    if (sessionMinutes <= 0) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'وقت الجلسة مطلوب',
+                            text: 'رجاءً أدخل وقت الجلسة!',
+                            confirmButtonText: 'حسناً',
+                            confirmButtonColor: '#8b5cf6'
+                        });
+                        return;
+                    }
+                    
+                    newTask.sessionTime = sessionMinutes;
+                    newTask.breakTime = breakMinutes;
+                    break;
+                case 5:
                     const reward = document.getElementById('taskReward').value.trim();
                     if (!reward) {
                         Swal.fire({
@@ -978,7 +1217,7 @@
                     }
                     newTask.reward = reward;
                     break;
-                case 5:
+                case 6:
                     if (!newTask.priority) {
                         Swal.fire({
                             icon: 'warning',
@@ -990,12 +1229,44 @@
                         return;
                     }
                     break;
-                case 6:
+                case 7:
                     // حفظ المهمة
                     newTask.isRoutine = document.getElementById('isRoutine').checked;
                     newTask.id = Date.now();
-                    newTask.duration = 25 * 60; // 25 دقيقة افتراضياً
+                    
+                    // تعيين وقت البدء
+                    if (newTask.startNow) {
+                        newTask.startDate = new Date().toISOString();
+                    } else {
+                        const startDate = document.getElementById('taskStartDate').value;
+                        if (!startDate) {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'تاريخ البدء مطلوب',
+                                text: 'رجاءً أدخل تاريخ البدء!',
+                                confirmButtonText: 'حسناً',
+                                confirmButtonColor: '#8b5cf6'
+                            });
+                            return;
+                        }
+                        newTask.startDate = new Date(startDate).toISOString();
+                    }
+                    
+                    // حساب عدد الجلسات المطلوبة
+                    const sessionTime = newTask.sessionTime;
+                    const breakTime = newTask.breakTime;
+                    const totalTime = newTask.totalTime;
+                    
+                    // حساب عدد الجلسات والوقت المتبقي
+                    const sessionCount = Math.floor(totalTime / sessionTime);
+                    const remainingTime = totalTime % sessionTime;
+                    
+                    // تعيين المدة الزمنية للجلسة الأولى
+                    newTask.duration = sessionTime * 60; // التحويل إلى ثواني
                     newTask.timeLeft = newTask.duration;
+                    newTask.sessionCount = sessionCount;
+                    newTask.remainingTime = remainingTime;
+                    newTask.currentSession = 1;
                     
                     if (newTask.isRoutine) {
                         tasks.routines.push({...newTask});
@@ -1030,7 +1301,7 @@
             currentStep++;
             updateStepContent();
         }
-
+        
         // الخطوة السابقة
         function previousStep() {
             if (currentStep > 1) {
@@ -1038,18 +1309,18 @@
                 updateStepContent();
             }
         }
-
+        
         // اختيار الأولوية
         function selectPriority(priority) {
             newTask.priority = priority;
             document.querySelectorAll('.priority-btn').forEach(btn => {
-                btn.classList.remove('border-blue-500', 'bg-blue-50');
+                btn.classList.remove('border-indigo-500', 'bg-indigo-50');
                 btn.classList.add('border-gray-300');
             });
             event.target.closest('.priority-btn').classList.remove('border-gray-300');
-            event.target.closest('.priority-btn').classList.add('border-blue-500', 'bg-blue-50');
+            event.target.closest('.priority-btn').classList.add('border-indigo-500', 'bg-indigo-50');
         }
-
+        
         // بدء العداد
         function startTimer() {
             if (timerInterval) clearInterval(timerInterval);
@@ -1077,34 +1348,134 @@
                         clearInterval(timerInterval);
                         timerInterval = null;
                         
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'انتهى الوقت!',
-                            text: 'فشلت المهمة... حاول مرة أخرى!',
-                            confirmButtonText: 'حسناً',
-                            confirmButtonColor: '#8b5cf6'
-                        });
-                        
-                        tasks.active = null;
-                        saveData();
-                        loadDashboard();
+                        // التحقق إذا كانت هناك جلسات أخرى
+                        if (tasks.active.currentSession < tasks.active.sessionCount || 
+                            (tasks.active.currentSession === tasks.active.sessionCount && tasks.active.remainingTime > 0)) {
+                            
+                            // عرض نافذة الراحة
+                            showBreakModal();
+                        } else {
+                            // انتهت جميع الجلسات
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'تم إنجاز المهمة!',
+                                text: 'لقد أكملت جميع جلسات العمل!',
+                                confirmButtonText: 'رائع!',
+                                confirmButtonColor: '#8b5cf6'
+                            }).then(() => {
+                                completeTask();
+                            });
+                        }
                     }
                 }
             }, 1000);
         }
-
+        
+        // عرض نافذة الراحة
+        function showBreakModal() {
+            breakTimeLeft = tasks.active.breakTime * 60; // التحويل إلى ثواني
+            
+            // تحديث معلومات الجلسات
+            document.getElementById('currentSessionInfo').textContent = tasks.active.currentSession;
+            document.getElementById('totalSessionsInfo').textContent = tasks.active.sessionCount;
+            
+            // تحديث وقت الجلسة التالية
+            let nextSessionDuration;
+            if (tasks.active.currentSession < tasks.active.sessionCount) {
+                nextSessionDuration = tasks.active.sessionTime;
+            } else {
+                nextSessionDuration = tasks.active.remainingTime;
+            }
+            document.getElementById('nextSessionTime').textContent = nextSessionDuration;
+            
+            // عرض النافذة
+            document.getElementById('breakModal').classList.remove('hidden');
+            
+            // بدء عداد الراحة
+            startBreakTimer();
+        }
+        
+        // بدء عداد الراحة
+        function startBreakTimer() {
+            if (breakTimerInterval) clearInterval(breakTimerInterval);
+            
+            breakTimerInterval = setInterval(() => {
+                if (breakTimeLeft > 0) {
+                    breakTimeLeft--;
+                    
+                    const breakTimerDisplay = document.getElementById('breakTimerDisplay');
+                    if (breakTimerDisplay) {
+                        breakTimerDisplay.textContent = formatTime(breakTimeLeft);
+                    }
+                } else {
+                    // انتهاء وقت الراحة، ابدأ الجلسة التالية تلقائياً
+                    clearInterval(breakTimerInterval);
+                    breakTimerInterval = null;
+                    startNextSession();
+                }
+            }, 1000);
+        }
+        
+        // بدء الجلسة التالية
+        function startNextSession() {
+            document.getElementById('breakModal').classList.add('hidden');
+            
+            if (tasks.active.currentSession < tasks.active.sessionCount) {
+                // بدء جلسة كاملة
+                tasks.active.currentSession++;
+                tasks.active.duration = tasks.active.sessionTime * 60;
+                tasks.active.timeLeft = tasks.active.duration;
+                saveData();
+                startTimer();
+                loadDashboard();
+            } else if (tasks.active.remainingTime > 0) {
+                // بدء الجلسة الأخيرة للوقت المتبقي
+                tasks.active.duration = tasks.active.remainingTime * 60;
+                tasks.active.timeLeft = tasks.active.duration;
+                saveData();
+                startTimer();
+                loadDashboard();
+            }
+        }
+        
+        // تخطي الراحة
+        function skipBreak() {
+            clearInterval(breakTimerInterval);
+            breakTimerInterval = null;
+            startNextSession();
+        }
+        
+        // إيقاف المؤقت خلال الراحة
+        function pauseDuringBreak() {
+            clearInterval(breakTimerInterval);
+            breakTimerInterval = null;
+            
+            Swal.fire({
+                icon: 'info',
+                title: 'تم الإيقاف',
+                text: 'تم إيقاف عداد الراحة',
+                confirmButtonText: 'حسناً',
+                confirmButtonColor: '#8b5cf6'
+            });
+        }
+        
+        // استمرار الراحة
+        function continueBreak() {
+            startBreakTimer();
+        }
+        
         // تنسيق الوقت
         function formatTime(seconds) {
             const mins = Math.floor(seconds / 60);
             const secs = seconds % 60;
             return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
         }
-
+        
         // الحصول على رسالة تحفيزية عشوائية
         function getRandomMotivationalMessage() {
             return motivationalMessages[Math.floor(Math.random() * motivationalMessages.length)];
         }
-
+        
         // إيقاف المهمة مؤقتاً
         function pauseTask() {
             if (timerInterval) {
@@ -1125,7 +1496,7 @@
                 });
             }
         }
-
+        
         // إنجاز المهمة
         function completeTask() {
             if (tasks.active) {
@@ -1192,7 +1563,7 @@
                 });
             }
         }
-
+        
         // تخطي المهمة
         function skipTask() {
             Swal.fire({
@@ -1215,7 +1586,7 @@
                 }
             });
         }
-
+        
         // إنشاء تأثير الاحتفال
         function createConfetti() {
             const colors = ['#f39c12', '#e74c3c', '#3498db', '#2ecc71', '#9b59b6'];
@@ -1232,7 +1603,7 @@
                 }, i * 30);
             }
         }
-
+        
         // استعادة مهمة مكتملة
         function restoreTask(index) {
             const task = tasks.completed[index];
@@ -1255,7 +1626,7 @@
                 confirmButtonColor: '#8b5cf6'
             });
         }
-
+        
         // حذف مهمة مكتملة
         function deleteCompletedTask(index) {
             Swal.fire({
@@ -1274,13 +1645,14 @@
                 }
             });
         }
-
+        
         // بدء مهمة روتينية
         function startRoutine(index) {
             const routine = tasks.routines[index];
             const newTask = {...routine};
             newTask.id = Date.now();
             newTask.timeLeft = newTask.duration;
+            newTask.startDate = new Date().toISOString();
             
             tasks.active = newTask;
             saveData();
@@ -1294,19 +1666,61 @@
                 confirmButtonColor: '#8b5cf6'
             });
         }
-
+        
         // تعديل مهمة روتينية
         function editRoutine(index) {
-            // يمكن تنفيذ هذه الوظيفة لاحقاً
-            Swal.fire({
-                icon: 'info',
-                title: 'قيد التطوير',
-                text: 'خاصية التعديل قيد التطوير',
-                confirmButtonText: 'حسناً',
-                confirmButtonColor: '#8b5cf6'
-            });
+            editingTaskIndex = index;
+            editingTaskType = 'routine';
+            
+            const task = tasks.routines[index];
+            
+            const editContent = document.getElementById('editTaskContent');
+            editContent.innerHTML = `
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-right mb-2">اسم المهمة</label>
+                        <input type="text" id="editTaskName" value="${task.name}" 
+                               class="w-full px-4 py-3 rounded-lg border-2 border-purple-300 focus:border-purple-500 focus:outline-none">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-right mb-2">الهدف</label>
+                        <textarea id="editTaskGoal" rows="3"
+                                  class="w-full px-4 py-3 rounded-lg border-2 border-purple-300 focus:border-purple-500 focus:outline-none">${task.goal}</textarea>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-right mb-2">وقت الجلسة (دقائق)</label>
+                        <input type="number" id="editSessionTime" value="${task.sessionTime}" min="1" max="120"
+                               class="w-full px-4 py-3 rounded-lg border-2 border-purple-300 focus:border-purple-500 focus:outline-none">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-right mb-2">وقت الراحة (دقائق)</label>
+                        <input type="number" id="editBreakTime" value="${task.breakTime}" min="1" max="60"
+                               class="w-full px-4 py-3 rounded-lg border-2 border-purple-300 focus:border-purple-500 focus:outline-none">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-right mb-2">المكافأة</label>
+                        <input type="text" id="editTaskReward" value="${task.reward}" 
+                               class="w-full px-4 py-3 rounded-lg border-2 border-purple-300 focus:border-purple-500 focus:outline-none">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-right mb-2">الأولوية</label>
+                        <select id="editTaskPriority" class="w-full px-4 py-3 rounded-lg border-2 border-purple-300 focus:border-purple-500 focus:outline-none">
+                            <option value="مهمة عاجلة" ${task.priority === 'مهمة عاجلة' ? 'selected' : ''}>مهمة عاجلة</option>
+                            <option value="مهمة جانبية" ${task.priority === 'مهمة جانبية' ? 'selected' : ''}>مهمة جانبية</option>
+                            <option value="مهمة طويلة المدى" ${task.priority === 'مهمة طويلة المدى' ? 'selected' : ''}>مهمة طويلة المدى</option>
+                        </select>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('editTaskModal').classList.remove('hidden');
         }
-
+        
         // حذف مهمة روتينية
         function deleteRoutine(index) {
             Swal.fire({
@@ -1325,19 +1739,100 @@
                 }
             });
         }
-
-        // تعديل مهمة مستقبلية
-        function editFutureTask(index) {
-            // يمكن تنفيذ هذه الوظيفة لاحقاً
+        
+        // بدء مهمة مستقبلية
+        function startFutureTask(index) {
+            const task = tasks.future[index];
+            const newTask = {...task};
+            newTask.id = Date.now();
+            newTask.timeLeft = newTask.duration;
+            newTask.startDate = new Date().toISOString();
+            
+            tasks.active = newTask;
+            tasks.future.splice(index, 1);
+            
+            saveData();
+            dismissNotification(task.id);
+            showPage('dashboard');
+            
             Swal.fire({
-                icon: 'info',
-                title: 'قيد التطوير',
-                text: 'خاصية التعديل قيد التطوير',
-                confirmButtonText: 'حسناً',
+                icon: 'success',
+                title: 'بدء المهمة!',
+                text: 'المهمة نشطة الآن',
+                confirmButtonText: 'رائع!',
                 confirmButtonColor: '#8b5cf6'
             });
         }
-
+        
+        // تعديل مهمة مستقبلية
+        function editFutureTask(index) {
+            editingTaskIndex = index;
+            editingTaskType = 'future';
+            
+            const task = tasks.future[index];
+            
+            // تحويل التاريخ إلى صيغة مناسبة لحقل datetime-local
+            const startDate = new Date(task.startDate);
+            const year = startDate.getFullYear();
+            const month = String(startDate.getMonth() + 1).padStart(2, '0');
+            const day = String(startDate.getDate()).padStart(2, '0');
+            const hours = String(startDate.getHours()).padStart(2, '0');
+            const minutes = String(startDate.getMinutes()).padStart(2, '0');
+            const formattedDate = `${year}-${month}-${day}T${hours}:${minutes}`;
+            
+            const editContent = document.getElementById('editTaskContent');
+            editContent.innerHTML = `
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-right mb-2">اسم المهمة</label>
+                        <input type="text" id="editTaskName" value="${task.name}" 
+                               class="w-full px-4 py-3 rounded-lg border-2 border-purple-300 focus:border-purple-500 focus:outline-none">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-right mb-2">الهدف</label>
+                        <textarea id="editTaskGoal" rows="3"
+                                  class="w-full px-4 py-3 rounded-lg border-2 border-purple-300 focus:border-purple-500 focus:outline-none">${task.goal}</textarea>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-right mb-2">تاريخ البدء</label>
+                        <input type="datetime-local" id="editTaskStartDate" value="${formattedDate}"
+                               class="w-full px-4 py-3 rounded-lg border-2 border-purple-300 focus:border-purple-500 focus:outline-none">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-right mb-2">وقت الجلسة (دقائق)</label>
+                        <input type="number" id="editSessionTime" value="${task.sessionTime}" min="1" max="120"
+                               class="w-full px-4 py-3 rounded-lg border-2 border-purple-300 focus:border-purple-500 focus:outline-none">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-right mb-2">وقت الراحة (دقائق)</label>
+                        <input type="number" id="editBreakTime" value="${task.breakTime}" min="1" max="60"
+                               class="w-full px-4 py-3 rounded-lg border-2 border-purple-300 focus:border-purple-500 focus:outline-none">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-right mb-2">المكافأة</label>
+                        <input type="text" id="editTaskReward" value="${task.reward}" 
+                               class="w-full px-4 py-3 rounded-lg border-2 border-purple-300 focus:border-purple-500 focus:outline-none">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-right mb-2">الأولوية</label>
+                        <select id="editTaskPriority" class="w-full px-4 py-3 rounded-lg border-2 border-purple-300 focus:border-purple-500 focus:outline-none">
+                            <option value="مهمة عاجلة" ${task.priority === 'مهمة عاجلة' ? 'selected' : ''}>مهمة عاجلة</option>
+                            <option value="مهمة جانبية" ${task.priority === 'مهمة جانبية' ? 'selected' : ''}>مهمة جانبية</option>
+                            <option value="مهمة طويلة المدى" ${task.priority === 'مهمة طويلة المدى' ? 'selected' : ''}>مهمة طويلة المدى</option>
+                        </select>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('editTaskModal').classList.remove('hidden');
+        }
+        
         // حذف مهمة مستقبلية
         function deleteFutureTask(index) {
             Swal.fire({
@@ -1356,7 +1851,80 @@
                 }
             });
         }
-
+        
+        // إغلاق نافذة تعديل المهام
+        function closeEditTaskModal() {
+            document.getElementById('editTaskModal').classList.add('hidden');
+            editingTaskIndex = -1;
+            editingTaskType = '';
+        }
+        
+        // حفظ المهام المعدلة
+        function saveEditedTask() {
+            const name = document.getElementById('editTaskName').value.trim();
+            const goal = document.getElementById('editTaskGoal').value.trim();
+            const sessionTime = parseInt(document.getElementById('editSessionTime').value) || 25;
+            const breakTime = parseInt(document.getElementById('editBreakTime').value) || 5;
+            const reward = document.getElementById('editTaskReward').value.trim();
+            const priority = document.getElementById('editTaskPriority').value;
+            
+            if (!name || !goal || !reward) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'حقول مطلوبة',
+                    text: 'رجاءً أدخل جميع الحقول المطلوبة!',
+                    confirmButtonText: 'حسناً',
+                    confirmButtonColor: '#8b5cf6'
+                });
+                return;
+            }
+            
+            if (editingTaskType === 'routine') {
+                tasks.routines[editingTaskIndex].name = name;
+                tasks.routines[editingTaskIndex].goal = goal;
+                tasks.routines[editingTaskIndex].sessionTime = sessionTime;
+                tasks.routines[editingTaskIndex].breakTime = breakTime;
+                tasks.routines[editingTaskIndex].reward = reward;
+                tasks.routines[editingTaskIndex].priority = priority;
+                
+                saveData();
+                loadRoutines();
+            } else if (editingTaskType === 'future') {
+                const startDate = document.getElementById('editTaskStartDate').value;
+                if (!startDate) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'تاريخ البدء مطلوب',
+                        text: 'رجاءً أدخل تاريخ البدء!',
+                        confirmButtonText: 'حسناً',
+                        confirmButtonColor: '#8b5cf6'
+                    });
+                    return;
+                }
+                
+                tasks.future[editingTaskIndex].name = name;
+                tasks.future[editingTaskIndex].goal = goal;
+                tasks.future[editingTaskIndex].startDate = new Date(startDate).toISOString();
+                tasks.future[editingTaskIndex].sessionTime = sessionTime;
+                tasks.future[editingTaskIndex].breakTime = breakTime;
+                tasks.future[editingTaskIndex].reward = reward;
+                tasks.future[editingTaskIndex].priority = priority;
+                
+                saveData();
+                loadFutureTasks();
+            }
+            
+            closeEditTaskModal();
+            
+            Swal.fire({
+                icon: 'success',
+                title: 'تم التعديل!',
+                text: 'تم تعديل المهمة بنجاح',
+                confirmButtonText: 'رائع!',
+                confirmButtonColor: '#8b5cf6'
+            });
+        }
+        
         // تعديل الملف الشخصي
         function editProfile() {
             Swal.fire({
@@ -1412,7 +1980,7 @@
                 }
             });
         }
-
+        
         // اختيار أفاتار في التعديل
         function selectEditAvatar(avatar) {
             heroData.avatar = avatar;
@@ -1420,7 +1988,7 @@
             updateHeroDisplay();
             loadSettings();
         }
-
+        
         // تصدير البيانات
         function exportData() {
             const data = {
@@ -1447,7 +2015,7 @@
                 confirmButtonColor: '#8b5cf6'
             });
         }
-
+        
         // استيراد البيانات
         function importData() {
             const input = document.createElement('input');
@@ -1513,7 +2081,7 @@
             
             input.click();
         }
-
+        
         // مسح البيانات
         function clearData() {
             Swal.fire({
@@ -1532,10 +2100,166 @@
                 }
             });
         }
-
+        
+        // بدء فحص الإشعارات
+        function startNotificationCheck() {
+            // فحص كل دقيقة
+            if (notificationInterval) {
+                clearInterval(notificationInterval);
+            }
+            
+            notificationInterval = setInterval(() => {
+                checkForNotifications();
+            }, 60000); // كل دقيقة
+            
+            // فحص فوري عند التحميل
+            checkForNotifications();
+        }
+        
+        // فحص وجود إشعارات
+        function checkForNotifications() {
+            const now = new Date();
+            
+            // فحص المهام المستقبلية
+            tasks.future.forEach((task, index) => {
+                const taskDate = new Date(task.startDate);
+                const timeDiff = taskDate - now;
+                
+                // إذا كان الوقت المتبقي أقل من 5 دقائق وأكثر من 0
+                if (timeDiff > 0 && timeDiff <= 5 * 60 * 1000) {
+                    showNotification(task, index);
+                }
+            });
+        }
+        
+        // عرض الإشعار
+        function showNotification(task, index) {
+            const notificationContainer = document.getElementById('notificationContainer');
+            
+            // التحقق من عدم وجود إشعار بالفعل لهذه المهمة
+            if (document.getElementById(`notification-${task.id}`)) {
+                return;
+            }
+            
+            const notification = document.createElement('div');
+            notification.id = `notification-${task.id}`;
+            notification.className = 'notification show';
+            notification.innerHTML = `
+                <div class="flex items-center">
+                    <i class="fas fa-bell text-yellow-500 text-xl ml-3"></i>
+                    <div>
+                        <h4 class="font-bold">حان وقت المهمة!</h4>
+                        <p class="text-sm">${task.name}</p>
+                    </div>
+                </div>
+                <div class="flex space-x-2 space-x-reverse">
+                    <button onclick="startFutureTask(${index})" class="bg-green-500 text-white px-3 py-1 rounded-lg hover:bg-green-600 transition text-sm">
+                        ابدأ الآن
+                    </button>
+                    <button onclick="postponeTask(${index})" class="bg-yellow-500 text-white px-3 py-1 rounded-lg hover:bg-yellow-600 transition text-sm">
+                        تأجيل
+                    </button>
+                    <button onclick="dismissNotification('${task.id}')" class="bg-gray-500 text-white px-3 py-1 rounded-lg hover:bg-gray-600 transition text-sm">
+                        إغلاق
+                    </button>
+                </div>
+            `;
+            
+            notificationContainer.appendChild(notification);
+            
+            // إغلاق الإشعار تلقائياً بعد 5 دقائق
+            setTimeout(() => {
+                dismissNotification(task.id);
+            }, 5 * 60 * 1000);
+        }
+        
+        // تأجيل مهمة
+        function postponeTask(index) {
+            Swal.fire({
+                title: 'تأجيل المهمة؟',
+                html: `
+                    <div class="text-right">
+                        <p>كم من الوقت تريد تأجيل هذه المهمة؟</p>
+                        <div class="mt-4">
+                            <select id="postponeTime" class="swal2-select">
+                                <option value="15">15 دقيقة</option>
+                                <option value="30">30 دقيقة</option>
+                                <option value="60">ساعة</option>
+                                <option value="120">ساعتان</option>
+                                <option value="custom">وقت مخصص</option>
+                            </select>
+                        </div>
+                        <div id="customTimeContainer" class="mt-4 hidden">
+                            <input type="number" id="customMinutes" class="swal2-input" placeholder="عدد الدقائق" min="1" max="1440">
+                        </div>
+                    </div>
+                `,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'تأجيل',
+                cancelButtonText: 'إلغاء',
+                confirmButtonColor: '#8b5cf6',
+                preConfirm: () => {
+                    const postponeOption = document.getElementById('postponeTime').value;
+                    let minutes;
+                    
+                    if (postponeOption === 'custom') {
+                        minutes = parseInt(document.getElementById('customMinutes').value);
+                        if (!minutes || minutes < 1) {
+                            Swal.showValidationMessage('رجاءً أدخل وقتاً صالحاً!');
+                            return false;
+                        }
+                    } else {
+                        minutes = parseInt(postponeOption);
+                    }
+                    
+                    return minutes;
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const minutes = result.value;
+                    const newDate = new Date(tasks.future[index].startDate);
+                    newDate.setMinutes(newDate.getMinutes() + minutes);
+                    
+                    tasks.future[index].startDate = newDate.toISOString();
+                    saveData();
+                    dismissNotification(tasks.future[index].id);
+                    loadFutureTasks();
+                    
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'تم التأجيل!',
+                        text: `تم تأجيل المهمة لمدة ${minutes} دقيقة`,
+                        confirmButtonText: 'رائع!',
+                        confirmButtonColor: '#8b5cf6'
+                    });
+                }
+            });
+            
+            // إظهار/إخفاء حقل الوقت المخصص
+            document.getElementById('postponeTime').addEventListener('change', function() {
+                const customTimeContainer = document.getElementById('customTimeContainer');
+                if (this.value === 'custom') {
+                    customTimeContainer.classList.remove('hidden');
+                } else {
+                    customTimeContainer.classList.add('hidden');
+                }
+            });
+        }
+        
+        // إغلاق الإشعار
+        function dismissNotification(taskId) {
+            const notification = document.getElementById(`notification-${taskId}`);
+            if (notification) {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    notification.remove();
+                }, 300);
+            }
+        }
+        
         // بدء التطبيق
         document.addEventListener('DOMContentLoaded', initApp);
     </script>
 </body>
-
 </html>
