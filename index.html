@@ -1,0 +1,1528 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إنجاز</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+
+    <link rel="icon" href="./logo.png">
+    
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <!-- Sortable.js -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    
+    <!-- Custom Styles -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&display=swap');
+        
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .hero-bg {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-bg::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: pulse 4s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+        
+        .task-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+        
+        .task-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .nav-item {
+            transition: all 0.3s ease;
+        }
+        
+        .nav-item.active {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+        
+        .xp-bar {
+            background: linear-gradient(90deg, #4ade80 0%, #22c55e 100%);
+            transition: width 0.5s ease;
+        }
+        
+        .timer-display {
+            font-variant-numeric: tabular-nums;
+            letter-spacing: 0.05em;
+        }
+        
+        .achievement-badge {
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .sortable-ghost {
+            opacity: 0.4;
+        }
+        
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: #f39c12;
+            position: absolute;
+            animation: confetti-fall 3s linear;
+        }
+        
+        @keyframes confetti-fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- شاشة البداية -->
+    <div id="startScreen" class="hero-bg min-h-screen flex items-center justify-center p-4">
+        <div class="relative z-10 text-center text-white animate__animated animate__fadeIn">
+            <i class="fas fa-shield-alt text-6xl mb-6 animate__animated animate__bounceIn"></i>
+            <h1 class="text-4xl md:text-6xl font-bold mb-4 animate__animated animate__fadeInDown">
+                إنجاز المهام: ابدأ رحلتك الملحمية
+            </h1>
+            <p class="text-xl mb-8 animate__animated animate__fadeInUp animate__delay-1s">
+                استعد لتصبح بطل الإنتاجية!
+            </p>
+            
+            <div class="bg-white/20 backdrop-blur-md rounded-2xl p-8 max-w-md mx-auto animate__animated animate__fadeInUp animate__delay-2s">
+                <div class="mb-6">
+                    <label class="block text-right mb-2 text-lg">اسم البطل</label>
+                    <input type="text" id="heroName" placeholder="ما هو اسمك البطولي؟" 
+                           class="w-full px-4 py-3 rounded-lg text-gray-800 text-center text-lg focus:outline-none focus:ring-4 focus:ring-purple-300">
+                </div>
+                
+                <div class="mb-6">
+                    <label class="block text-right mb-2 text-lg">اختر صورتك</label>
+                    <div class="grid grid-cols-4 gap-3">
+                        <button onclick="selectAvatar(1)" class="avatar-btn p-3 bg-white/30 rounded-lg hover:bg-white/50 transition">
+                            <i class="fas fa-user-ninja text-2xl"></i>
+                        </button>
+                        <button onclick="selectAvatar(2)" class="avatar-btn p-3 bg-white/30 rounded-lg hover:bg-white/50 transition">
+                            <i class="fas fa-user-astronaut text-2xl"></i>
+                        </button>
+                        <button onclick="selectAvatar(3)" class="avatar-btn p-3 bg-white/30 rounded-lg hover:bg-white/50 transition">
+                            <i class="fas fa-user-secret text-2xl"></i>
+                        </button>
+                        <button onclick="selectAvatar(4)" class="avatar-btn p-3 bg-white/30 rounded-lg hover:bg-white/50 transition">
+                            <i class="fas fa-user-tie text-2xl"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <button onclick="startJourney()" class="w-full bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-bold py-4 px-8 rounded-lg text-xl hover:from-yellow-500 hover:to-orange-600 transform hover:scale-105 transition duration-300 shadow-lg">
+                    <i class="fas fa-rocket ml-2"></i>
+                    انطلق في مهمتك!
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- التطبيق الرئيسي -->
+    <div id="mainApp" class="hidden min-h-screen pb-20">
+        <!-- رأس الصفحة -->
+        <header class="bg-white/90 backdrop-blur-md shadow-lg sticky top-0 z-40">
+            <div class="container mx-auto px-4 py-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-4 space-x-reverse">
+                        <div id="userAvatar" class="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center text-white text-xl">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div>
+                            <h2 id="heroDisplayName" class="font-bold text-lg">البطل</h2>
+                            <div class="flex items-center space-x-2 space-x-reverse">
+                                <span class="text-sm text-gray-600">المستوى</span>
+                                <span id="heroLevel" class="font-bold text-purple-600">1</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center space-x-4 space-x-reverse">
+                        <div class="text-center">
+                            <div class="text-sm text-gray-600">نقاط الخبرة</div>
+                            <div class="flex items-center space-x-2 space-x-reverse">
+                                <i class="fas fa-star text-yellow-500"></i>
+                                <span id="heroXP" class="font-bold text-xl">0</span>
+                            </div>
+                        </div>
+                        
+                        <div class="relative">
+                            <i class="fas fa-trophy text-2xl text-yellow-500 achievement-badge"></i>
+                            <span id="badgeCount" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">0</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- شريط التقدم -->
+                <div class="mt-3 bg-gray-200 rounded-full h-3 overflow-hidden">
+                    <div id="xpBar" class="xp-bar h-full rounded-full" style="width: 0%"></div>
+                </div>
+            </div>
+        </header>
+
+        <!-- المحتوى الرئيسي -->
+        <main id="mainContent" class="container mx-auto px-4 py-6">
+            <!-- سيتم تحميل الصفحات هنا ديناميكياً -->
+        </main>
+
+        <!-- شريط التنقل السفلي -->
+        <nav class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md shadow-lg border-t">
+            <div class="grid grid-cols-5">
+                <button onclick="showPage('dashboard')" class="nav-item active py-3 px-2 text-center" data-page="dashboard">
+                    <i class="fas fa-home text-xl mb-1"></i>
+                    <div class="text-xs">لوحة المهام</div>
+                </button>
+                <button onclick="showPage('hallOfFame')" class="nav-item py-3 px-2 text-center" data-page="hallOfFame">
+                    <i class="fas fa-trophy text-xl mb-1"></i>
+                    <div class="text-xs">قاعة الشهرة</div>
+                </button>
+                <button onclick="showPage('routines')" class="nav-item py-3 px-2 text-center" data-page="routines">
+                    <i class="fas fa-sync text-xl mb-1"></i>
+                    <div class="text-xs">مهام روتينية</div>
+                </button>
+                <button onclick="showPage('futureTasks')" class="nav-item py-3 px-2 text-center" data-page="futureTasks">
+                    <i class="fas fa-calendar-alt text-xl mb-1"></i>
+                    <div class="text-xs">مهام المستقبل</div>
+                </button>
+                <button onclick="showPage('settings')" class="nav-item py-3 px-2 text-center" data-page="settings">
+                    <i class="fas fa-cog text-xl mb-1"></i>
+                    <div class="text-xs">الإعدادات</div>
+                </button>
+            </div>
+        </nav>
+    </div>
+
+    <!-- نافذة إنشاء المهام -->
+    <div id="taskModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animate__animated animate__fadeInUp">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold">إنشاء مهمة جديدة</h3>
+                    <button onclick="closeTaskModal()" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <!-- شريط التقدم -->
+                <div class="mb-6">
+                    <div class="flex justify-between mb-2">
+                        <span id="stepText">الخطوة 1 من 6</span>
+                        <span id="progressPercent">17%</span>
+                    </div>
+                    <div class="bg-gray-200 rounded-full h-2 overflow-hidden">
+                        <div id="progressBar" class="bg-gradient-to-r from-purple-500 to-pink-500 h-full rounded-full transition-all duration-300" style="width: 17%"></div>
+                    </div>
+                </div>
+                
+                <!-- محتوى الخطوات -->
+                <div id="stepContent">
+                    <!-- سيتم تحميل محتوى الخطوات هنا -->
+                </div>
+                
+                <!-- أزرار التنقل -->
+                <div class="flex justify-between mt-6">
+                    <button id="prevBtn" onclick="previousStep()" class="px-6 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition disabled:opacity-50" disabled>
+                        <i class="fas fa-arrow-right ml-2"></i>
+                        السابق
+                    </button>
+                    <button id="nextBtn" onclick="nextStep()" class="px-6 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition">
+                        التالي
+                        <i class="fas fa-arrow-left mr-2"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // البيانات العامة
+        let heroData = {
+            name: '',
+            avatar: 1,
+            level: 1,
+            xp: 0,
+            badges: []
+        };
+        
+        let tasks = {
+            active: null,
+            completed: [],
+            future: [],
+            routines: []
+        };
+        
+        let currentStep = 1;
+        let newTask = {};
+        let timerInterval = null;
+        let selectedAvatar = 1;
+
+        // رسائل التحفيز
+        const motivationalMessages = [
+            "أنت تبذل مجهوداً رائعاً! استمر!",
+            "كل خطوة تقربك أكثر من النجاح",
+            "البطولات تُصنع بالتحديات الصغيرة",
+            "أنت أقوى مما تتخيل",
+            "النجاح رحلة، وليس وجهة",
+            "استمر في القتال، البطل لا يستسلم!",
+            "كل مهمة منجزة هي انتصار جديد",
+            "أنت تبني مستقبلاً مشرقاً"
+        ];
+
+        // تهيئة التطبيق
+        function initApp() {
+            loadData();
+            
+            // التحقق من وجود بيانات المستخدم
+            if (heroData.name && heroData.name.trim() !== '') {
+                // إذا كان المستخدم مسجلاً، اعرض التطبيق الرئيسي مباشرة
+                document.getElementById('startScreen').style.display = 'none';
+                document.getElementById('mainApp').classList.remove('hidden');
+                showMainApp();
+            } else {
+                // إذا كان المستخدم جديداً، اعرض شاشة البداية
+                document.getElementById('startScreen').style.display = 'flex';
+                document.getElementById('mainApp').classList.add('hidden');
+            }
+        }
+
+        // تحميل البيانات من Local Storage
+        function loadData() {
+            try {
+                const savedHero = localStorage.getItem('heroData');
+                const savedTasks = localStorage.getItem('tasks');
+                
+                if (savedHero) {
+                    heroData = JSON.parse(savedHero);
+                }
+                
+                if (savedTasks) {
+                    tasks = JSON.parse(savedTasks);
+                }
+            } catch (error) {
+                console.error('Error loading data:', error);
+                // في حالة وجود خطأ، إعادة تعيين البيانات
+                heroData = {
+                    name: '',
+                    avatar: 1,
+                    level: 1,
+                    xp: 0,
+                    badges: []
+                };
+                tasks = {
+                    active: null,
+                    completed: [],
+                    future: [],
+                    routines: []
+                };
+            }
+        }
+
+        // حفظ البيانات في Local Storage
+        function saveData() {
+            try {
+                localStorage.setItem('heroData', JSON.stringify(heroData));
+                localStorage.setItem('tasks', JSON.stringify(tasks));
+            } catch (error) {
+                console.error('Error saving data:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'خطأ في الحفظ!',
+                    text: 'لم يتم حفظ البيانات بشكل صحيح',
+                    confirmButtonText: 'حسناً',
+                    confirmButtonColor: '#8b5cf6'
+                });
+            }
+        }
+
+        // اختيار الأفاتار
+        function selectAvatar(avatar) {
+            selectedAvatar = avatar;
+            document.querySelectorAll('.avatar-btn').forEach(btn => {
+                btn.classList.remove('bg-white/70');
+                btn.classList.add('bg-white/30');
+            });
+            event.target.closest('.avatar-btn').classList.remove('bg-white/30');
+            event.target.closest('.avatar-btn').classList.add('bg-white/70');
+        }
+
+        // بدء الرحلة
+        function startJourney() {
+            const name = document.getElementById('heroName').value.trim();
+            if (!name) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'اسم البطل مطلوب',
+                    text: 'رجاءً أدخل اسمك البطولي!',
+                    confirmButtonText: 'حسناً',
+                    confirmButtonColor: '#8b5cf6'
+                });
+                return;
+            }
+            
+            heroData.name = name;
+            heroData.avatar = selectedAvatar;
+            saveData();
+            
+            document.getElementById('startScreen').classList.add('animate__animated', 'animate__fadeOut');
+            setTimeout(() => {
+                document.getElementById('startScreen').style.display = 'none';
+                document.getElementById('startScreen').classList.remove('animate__animated', 'animate__fadeOut');
+                document.getElementById('mainApp').classList.remove('hidden');
+                showMainApp();
+            }, 1000);
+        }
+
+        // عرض التطبيق الرئيسي
+        function showMainApp() {
+            updateHeroDisplay();
+            showPage('dashboard');
+        }
+
+        // تحديث عرض البطل
+        function updateHeroDisplay() {
+            document.getElementById('heroDisplayName').textContent = heroData.name;
+            document.getElementById('heroLevel').textContent = heroData.level;
+            document.getElementById('heroXP').textContent = heroData.xp;
+            document.getElementById('badgeCount').textContent = heroData.badges.length;
+            
+            // تحديث شريط XP
+            const xpNeeded = heroData.level * 100;
+            const xpProgress = (heroData.xp % xpNeeded) / xpNeeded * 100;
+            document.getElementById('xpBar').style.width = xpProgress + '%';
+            
+            // تحديث الأفاتار
+            const avatarIcons = ['fa-user', 'fa-user-ninja', 'fa-user-astronaut', 'fa-user-secret', 'fa-user-tie'];
+            document.getElementById('userAvatar').innerHTML = `<i class="fas ${avatarIcons[heroData.avatar]}"></i>`;
+        }
+
+        // عرض الصفحات
+        function showPage(pageName) {
+            // تحديث شريط التنقل
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            document.querySelector(`[data-page="${pageName}"]`).classList.add('active');
+            
+            // تحميل محتوى الصفحة
+            const content = document.getElementById('mainContent');
+            
+            switch(pageName) {
+                case 'dashboard':
+                    loadDashboard();
+                    break;
+                case 'hallOfFame':
+                    loadHallOfFame();
+                    break;
+                case 'routines':
+                    loadRoutines();
+                    break;
+                case 'futureTasks':
+                    loadFutureTasks();
+                    break;
+                case 'settings':
+                    loadSettings();
+                    break;
+            }
+        }
+
+        // تحميل لوحة المهام
+        function loadDashboard() {
+            const content = document.getElementById('mainContent');
+            let html = `
+                <div class="grid gap-6">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-2xl font-bold text-white">لوحة المهام</h2>
+                        <button onclick="openTaskModal()" class="bg-gradient-to-r from-green-400 to-blue-500 text-white px-6 py-3 rounded-lg hover:from-green-500 hover:to-blue-600 transition transform hover:scale-105">
+                            <i class="fas fa-plus ml-2"></i>
+                            مهمة جديدة
+                        </button>
+                    </div>
+            `;
+            
+            if (tasks.active) {
+                html += `
+                    <div class="task-card rounded-2xl p-6 shadow-xl">
+                        <div class="text-center mb-6">
+                            <h3 class="text-3xl font-bold text-purple-600 mb-2">${tasks.active.name}</h3>
+                            <p class="text-gray-600">${tasks.active.goal}</p>
+                        </div>
+                        
+                        <div class="text-center mb-6">
+                            <div class="timer-display text-6xl font-bold text-orange-500 mb-2" id="timerDisplay">
+                                ${formatTime(tasks.active.timeLeft || tasks.active.duration)}
+                            </div>
+                            <div class="text-sm text-gray-500">الوقت المتبقي</div>
+                        </div>
+                        
+                        <div class="bg-yellow-50 border-r-4 border-yellow-400 p-4 rounded-lg mb-6">
+                            <p class="text-center text-yellow-800" id="motivationalMessage">
+                                ${getRandomMotivationalMessage()}
+                            </p>
+                        </div>
+                        
+                        <div class="flex justify-center space-x-4 space-x-reverse">
+                            <button onclick="pauseTask()" class="bg-yellow-500 text-white px-6 py-3 rounded-lg hover:bg-yellow-600 transition">
+                                <i class="fas fa-pause ml-2"></i>
+                                إيقاف مؤقت
+                            </button>
+                            <button onclick="completeTask()" class="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition">
+                                <i class="fas fa-check ml-2"></i>
+                                إنجاز
+                            </button>
+                            <button onclick="skipTask()" class="bg-red-500 text-white px-6 py-3 rounded-lg hover:bg-red-600 transition">
+                                <i class="fas fa-forward ml-2"></i>
+                                تخطي
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                // بدء العداد
+                if (!timerInterval) {
+                    startTimer();
+                }
+            } else {
+                html += `
+                    <div class="task-card rounded-2xl p-12 text-center shadow-xl">
+                        <i class="fas fa-rocket text-6xl text-purple-400 mb-4"></i>
+                        <h3 class="text-2xl font-bold text-gray-700 mb-2">لا توجد مهام نشطة</h3>
+                        <p class="text-gray-600 mb-6">ابدأ مهمة جديدة لبدء مغامرتك!</p>
+                        <button onclick="openTaskModal()" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-lg hover:from-purple-600 hover:to-pink-600 transition transform hover:scale-105">
+                            <i class="fas fa-play ml-2"></i>
+                            ابدأ مهمة جديدة
+                        </button>
+                    </div>
+                `;
+            }
+            
+            content.innerHTML = html;
+        }
+
+        // تحميل قاعة الشهرة
+        function loadHallOfFame() {
+            const content = document.getElementById('mainContent');
+            let html = `
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-white mb-2">قاعة الشهرة</h2>
+                    <p class="text-white/80">المهام التي أنجزتها ببطولة</p>
+                </div>
+            `;
+            
+            if (tasks.completed.length === 0) {
+                html += `
+                    <div class="task-card rounded-2xl p-12 text-center shadow-xl">
+                        <i class="fas fa-trophy text-6xl text-yellow-400 mb-4"></i>
+                        <h3 class="text-2xl font-bold text-gray-700 mb-2">قاعة الشهرة فارغة</h3>
+                        <p class="text-gray-600">أنجز مهامك لتظهر هنا!</p>
+                    </div>
+                `;
+            } else {
+                html += '<div class="grid gap-4">';
+                tasks.completed.forEach((task, index) => {
+                    html += `
+                        <div class="task-card rounded-xl p-6 shadow-lg animate__animated animate__fadeIn">
+                            <div class="flex justify-between items-start mb-4">
+                                <div>
+                                    <h3 class="text-xl font-bold text-purple-600">${task.name}</h3>
+                                    <p class="text-gray-600 text-sm">${new Date(task.completedAt).toLocaleDateString('ar-SA')}</p>
+                                </div>
+                                <div class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm">
+                                    <i class="fas fa-star ml-1"></i>
+                                    ${task.reward}
+                                </div>
+                            </div>
+                            <p class="text-gray-700 mb-4">${task.goal}</p>
+                            <div class="flex space-x-2 space-x-reverse">
+                                <button onclick="restoreTask(${index})" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition text-sm">
+                                    <i class="fas fa-redo ml-1"></i>
+                                    استعادة
+                                </button>
+                                <button onclick="deleteCompletedTask(${index})" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition text-sm">
+                                    <i class="fas fa-trash ml-1"></i>
+                                    حذف
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+            }
+            
+            content.innerHTML = html;
+        }
+
+        // تحميل المهام الروتينية
+        function loadRoutines() {
+            const content = document.getElementById('mainContent');
+            let html = `
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-white mb-2">المهام الروتينية</h2>
+                    <p class="text-white/80">مهام يمكنك تكرارها بسهولة</p>
+                </div>
+            `;
+            
+            if (tasks.routines.length === 0) {
+                html += `
+                    <div class="task-card rounded-2xl p-12 text-center shadow-xl">
+                        <i class="fas fa-sync text-6xl text-blue-400 mb-4"></i>
+                        <h3 class="text-2xl font-bold text-gray-700 mb-2">لا توجد مهام روتينية</h3>
+                        <p class="text-gray-600">أنشئ مهام روتينية لتسهيل حياتك!</p>
+                    </div>
+                `;
+            } else {
+                html += '<div class="grid gap-4">';
+                tasks.routines.forEach((task, index) => {
+                    html += `
+                        <div class="task-card rounded-xl p-6 shadow-lg">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-xl font-bold text-blue-600">${task.name}</h3>
+                                <div class="flex space-x-2 space-x-reverse">
+                                    <button onclick="editRoutine(${index})" class="bg-yellow-500 text-white px-3 py-1 rounded-lg hover:bg-yellow-600 transition text-sm">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button onclick="deleteRoutine(${index})" class="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 transition text-sm">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <p class="text-gray-700 mb-4">${task.goal}</p>
+                            <button onclick="startRoutine(${index})" class="w-full bg-gradient-to-r from-blue-500 to-purple-500 text-white py-3 rounded-lg hover:from-blue-600 hover:to-purple-600 transition">
+                                <i class="fas fa-play ml-2"></i>
+                                ابدأ هذه المهمة
+                            </button>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+            }
+            
+            content.innerHTML = html;
+        }
+
+        // تحميل مهام المستقبل
+        function loadFutureTasks() {
+            const content = document.getElementById('mainContent');
+            let html = `
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-white mb-2">مهام المستقبل</h2>
+                    <p class="text-white/80">المهام المخطط لها</p>
+                </div>
+            `;
+            
+            if (tasks.future.length === 0) {
+                html += `
+                    <div class="task-card rounded-2xl p-12 text-center shadow-xl">
+                        <i class="fas fa-calendar-alt text-6xl text-green-400 mb-4"></i>
+                        <h3 class="text-2xl font-bold text-gray-700 mb-2">لا توجد مهام مستقبلية</h3>
+                        <p class="text-gray-600">خطط لمستقبلك الآن!</p>
+                    </div>
+                `;
+            } else {
+                // ترتيب المهام حسب التاريخ
+                const sortedTasks = [...tasks.future].sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
+                
+                html += '<div id="futureTasksList" class="grid gap-4">';
+                sortedTasks.forEach((task, index) => {
+                    const originalIndex = tasks.future.findIndex(t => t.id === task.id);
+                    html += `
+                        <div class="task-card rounded-xl p-6 shadow-lg cursor-move" data-id="${task.id}">
+                            <div class="flex justify-between items-start mb-4">
+                                <div>
+                                    <h3 class="text-xl font-bold text-green-600">${task.name}</h3>
+                                    <p class="text-gray-600 text-sm">
+                                        <i class="fas fa-calendar ml-1"></i>
+                                        ${new Date(task.startDate).toLocaleDateString('ar-SA')}
+                                    </p>
+                                </div>
+                                <div class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm">
+                                    ${task.priority}
+                                </div>
+                            </div>
+                            <p class="text-gray-700 mb-4">${task.goal}</p>
+                            <div class="flex space-x-2 space-x-reverse">
+                                <button onclick="editFutureTask(${originalIndex})" class="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition text-sm">
+                                    <i class="fas fa-edit ml-1"></i>
+                                    تعديل
+                                </button>
+                                <button onclick="deleteFutureTask(${originalIndex})" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition text-sm">
+                                    <i class="fas fa-trash ml-1"></i>
+                                    حذف
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+                
+                // تفعيل السحب والإفلات
+                setTimeout(() => {
+                    new Sortable(document.getElementById('futureTasksList'), {
+                        animation: 150,
+                        ghostClass: 'sortable-ghost',
+                        onEnd: function(evt) {
+                            const item = tasks.future.splice(evt.oldIndex, 1)[0];
+                            tasks.future.splice(evt.newIndex, 0, item);
+                            saveData();
+                        }
+                    });
+                }, 100);
+            }
+            
+            content.innerHTML = html;
+        }
+
+        // تحميل الإعدادات
+        function loadSettings() {
+            const content = document.getElementById('mainContent');
+            content.innerHTML = `
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-white mb-2">أدوات البطل</h2>
+                    <p class="text-white/80">إدارة حسابك وإعداداتك</p>
+                </div>
+                
+                <div class="grid gap-6">
+                    <!-- ملف المستخدم -->
+                    <div class="task-card rounded-2xl p-6 shadow-xl">
+                        <h3 class="text-xl font-bold text-purple-600 mb-4">
+                            <i class="fas fa-user-circle ml-2"></i>
+                            ملف المستخدم
+                        </h3>
+                        <div class="flex items-center space-x-4 space-x-reverse mb-4">
+                            <div id="settingsAvatar" class="w-16 h-16 bg-purple-500 rounded-full flex items-center justify-center text-white text-2xl">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-lg">${heroData.name}</h4>
+                                <p class="text-gray-600">المستوى ${heroData.level}</p>
+                            </div>
+                        </div>
+                        <button onclick="editProfile()" class="bg-purple-500 text-white px-6 py-2 rounded-lg hover:bg-purple-600 transition">
+                            <i class="fas fa-edit ml-2"></i>
+                            تعديل الملف الشخصي
+                        </button>
+                    </div>
+                    
+                    <!-- إدارة البيانات -->
+                    <div class="task-card rounded-2xl p-6 shadow-xl">
+                        <h3 class="text-xl font-bold text-blue-600 mb-4">
+                            <i class="fas fa-database ml-2"></i>
+                            إدارة البيانات
+                        </h3>
+                        <div class="space-y-3">
+                            <button onclick="exportData()" class="w-full bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition">
+                                <i class="fas fa-download ml-2"></i>
+                                حفظ رحلتك
+                            </button>
+                            <button onclick="importData()" class="w-full bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition">
+                                <i class="fas fa-upload ml-2"></i>
+                                استعادة من نسخة احتياطية
+                            </button>
+                            <button onclick="clearData()" class="w-full bg-red-500 text-white px-6 py-3 rounded-lg hover:bg-red-600 transition">
+                                <i class="fas fa-trash-alt ml-2"></i>
+                                مسح تاريخك
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- حول -->
+                    <div class="task-card rounded-2xl p-6 shadow-xl">
+                        <h3 class="text-xl font-bold text-gray-700 mb-4">
+                            <i class="fas fa-info-circle ml-2"></i>
+                            حول
+                        </h3>
+                        <div class="space-y-2 text-gray-600">
+                            <p><strong>الإصدار:</strong> 1.0.0</p>
+                            <p><strong>المطور:</strong> Ahmed Tawheed</p>
+                            <p><strong>الحقوق:</strong> © 2025 جميع الحقوق محفوظة</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // تحديث الأفاتار في الإعدادات
+            const avatarIcons = ['fa-user', 'fa-user-ninja', 'fa-user-astronaut', 'fa-user-secret', 'fa-user-tie'];
+            document.getElementById('settingsAvatar').innerHTML = `<i class="fas ${avatarIcons[heroData.avatar]}"></i>`;
+        }
+
+        // فتح نافذة إنشاء المهام
+        function openTaskModal() {
+            currentStep = 1;
+            newTask = {};
+            document.getElementById('taskModal').classList.remove('hidden');
+            updateStepContent();
+        }
+
+        // إغلاق نافذة إنشاء المهام
+        function closeTaskModal() {
+            document.getElementById('taskModal').classList.add('hidden');
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+        }
+
+        // تحديث محتوى الخطوة
+        function updateStepContent() {
+            const stepContent = document.getElementById('stepContent');
+            const stepText = document.getElementById('stepText');
+            const progressPercent = document.getElementById('progressPercent');
+            const progressBar = document.getElementById('progressBar');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            
+            stepText.textContent = `الخطوة ${currentStep} من 6`;
+            progressPercent.textContent = `${Math.round((currentStep / 6) * 100)}%`;
+            progressBar.style.width = `${(currentStep / 6) * 100}%`;
+            
+            prevBtn.disabled = currentStep === 1;
+            
+            switch(currentStep) {
+                case 1:
+                    stepContent.innerHTML = `
+                        <div class="text-center">
+                            <i class="fas fa-scroll text-6xl text-purple-500 mb-4"></i>
+                            <h4 class="text-xl font-bold mb-4">ما هي المهمة العظيمة التي ستبدأها اليوم؟</h4>
+                            <input type="text" id="taskName" placeholder="أدخل اسم المهمة" 
+                                   class="w-full px-4 py-3 rounded-lg border-2 border-purple-300 focus:border-purple-500 focus:outline-none text-lg">
+                        </div>
+                    `;
+                    break;
+                case 2:
+                    stepContent.innerHTML = `
+                        <div class="text-center">
+                            <i class="fas fa-bullseye text-6xl text-red-500 mb-4"></i>
+                            <h4 class="text-xl font-bold mb-4">ما هو هدفك النهائي من هذه المهمة؟</h4>
+                            <textarea id="taskGoal" placeholder="صف هدفك..." rows="4"
+                                      class="w-full px-4 py-3 rounded-lg border-2 border-red-300 focus:border-red-500 focus:outline-none text-lg"></textarea>
+                        </div>
+                    `;
+                    break;
+                case 3:
+                    stepContent.innerHTML = `
+                        <div class="text-center">
+                            <i class="fas fa-calendar-check text-6xl text-green-500 mb-4"></i>
+                            <h4 class="text-xl font-bold mb-4">متى ستبدأ مهمتك؟</h4>
+                            <input type="datetime-local" id="taskStartDate" 
+                                   class="w-full px-4 py-3 rounded-lg border-2 border-green-300 focus:border-green-500 focus:outline-none text-lg mb-4">
+                            <h4 class="text-xl font-bold mb-4">ما هو الموعد النهائي للنصر؟</h4>
+                            <input type="datetime-local" id="taskEndDate" 
+                                   class="w-full px-4 py-3 rounded-lg border-2 border-green-300 focus:border-green-500 focus:outline-none text-lg">
+                        </div>
+                    `;
+                    break;
+                case 4:
+                    stepContent.innerHTML = `
+                        <div class="text-center">
+                            <i class="fas fa-gem text-6xl text-yellow-500 mb-4"></i>
+                            <h4 class="text-xl font-bold mb-4">ما هو الكنز الذي ستحصل عليه عند إكمالها؟</h4>
+                            <input type="text" id="taskReward" placeholder="أدخل المكافأة" 
+                                   class="w-full px-4 py-3 rounded-lg border-2 border-yellow-300 focus:border-yellow-500 focus:outline-none text-lg">
+                        </div>
+                    `;
+                    break;
+                case 5:
+                    stepContent.innerHTML = `
+                        <div class="text-center">
+                            <i class="fas fa-flag text-6xl text-blue-500 mb-4"></i>
+                            <h4 class="text-xl font-bold mb-4">ما هي أولوية هذه المهمة؟</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                                <button onclick="selectPriority('مهمة عاجلة')" class="priority-btn p-6 rounded-lg border-2 border-gray-300 hover:border-blue-500 hover:bg-blue-50 transition">
+                                    <i class="fas fa-fire text-3xl text-red-500 mb-2"></i>
+                                    <div class="font-bold">مهمة عاجلة</div>
+                                </button>
+                                <button onclick="selectPriority('مهمة جانبية')" class="priority-btn p-6 rounded-lg border-2 border-gray-300 hover:border-blue-500 hover:bg-blue-50 transition">
+                                    <i class="fas fa-leaf text-3xl text-green-500 mb-2"></i>
+                                    <div class="font-bold">مهمة جانبية</div>
+                                </button>
+                                <button onclick="selectPriority('مهمة طويلة المدى')" class="priority-btn p-6 rounded-lg border-2 border-gray-300 hover:border-blue-500 hover:bg-blue-50 transition">
+                                    <i class="fas fa-mountain text-3xl text-purple-500 mb-2"></i>
+                                    <div class="font-bold">مهمة طويلة المدى</div>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    break;
+                case 6:
+                    stepContent.innerHTML = `
+                        <div class="text-center">
+                            <i class="fas fa-sync-alt text-6xl text-indigo-500 mb-4"></i>
+                            <h4 class="text-xl font-bold mb-4">هل هذه مهمة روتينية؟</h4>
+                            <div class="flex justify-center items-center space-x-4 space-x-reverse mt-6">
+                                <span class="text-lg">لا</span>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="isRoutine" class="sr-only peer">
+                                    <div class="w-14 h-7 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:right-[2px] after:bg-white after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-indigo-500"></div>
+                                </label>
+                                <span class="text-lg">نعم</span>
+                            </div>
+                        </div>
+                    `;
+                    nextBtn.textContent = 'بدء المهمة';
+                    nextBtn.innerHTML = 'بدء المهمة <i class="fas fa-rocket mr-2"></i>';
+                    break;
+            }
+        }
+
+        // الخطوة التالية
+        function nextStep() {
+            // حفظ بيانات الخطوة الحالية
+            switch(currentStep) {
+                case 1:
+                    const name = document.getElementById('taskName').value.trim();
+                    if (!name) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'اسم المهمة مطلوب',
+                            text: 'رجاءً أدخل اسم المهمة!',
+                            confirmButtonText: 'حسناً',
+                            confirmButtonColor: '#8b5cf6'
+                        });
+                        return;
+                    }
+                    newTask.name = name;
+                    break;
+                case 2:
+                    const goal = document.getElementById('taskGoal').value.trim();
+                    if (!goal) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'الهدف مطلوب',
+                            text: 'رجاءً أدخل هدف المهمة!',
+                            confirmButtonText: 'حسناً',
+                            confirmButtonColor: '#8b5cf6'
+                        });
+                        return;
+                    }
+                    newTask.goal = goal;
+                    break;
+                case 3:
+                    const startDate = document.getElementById('taskStartDate').value;
+                    const endDate = document.getElementById('taskEndDate').value;
+                    if (!startDate || !endDate) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'التواريخ مطلوبة',
+                            text: 'رجاءً أدخل تاريخ البدء والانتهاء!',
+                            confirmButtonText: 'حسناً',
+                            confirmButtonColor: '#8b5cf6'
+                        });
+                        return;
+                    }
+                    newTask.startDate = startDate;
+                    newTask.endDate = endDate;
+                    break;
+                case 4:
+                    const reward = document.getElementById('taskReward').value.trim();
+                    if (!reward) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'المكافأة مطلوبة',
+                            text: 'رجاءً أدخل المكافأة!',
+                            confirmButtonText: 'حسناً',
+                            confirmButtonColor: '#8b5cf6'
+                        });
+                        return;
+                    }
+                    newTask.reward = reward;
+                    break;
+                case 5:
+                    if (!newTask.priority) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'الأولوية مطلوبة',
+                            text: 'رجاءً اختر أولوية المهمة!',
+                            confirmButtonText: 'حسناً',
+                            confirmButtonColor: '#8b5cf6'
+                        });
+                        return;
+                    }
+                    break;
+                case 6:
+                    // حفظ المهمة
+                    newTask.isRoutine = document.getElementById('isRoutine').checked;
+                    newTask.id = Date.now();
+                    newTask.duration = 25 * 60; // 25 دقيقة افتراضياً
+                    newTask.timeLeft = newTask.duration;
+                    
+                    if (newTask.isRoutine) {
+                        tasks.routines.push({...newTask});
+                    } else {
+                        // تحقق إذا كانت المهمة يجب أن تبدأ الآن أو في المستقبل
+                        const now = new Date();
+                        const taskStart = new Date(newTask.startDate);
+                        
+                        if (taskStart <= now) {
+                            tasks.active = {...newTask};
+                            startTimer();
+                        } else {
+                            tasks.future.push({...newTask});
+                        }
+                    }
+                    
+                    saveData();
+                    closeTaskModal();
+                    showPage('dashboard');
+                    
+                    // عرض رسالة نجاح
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'تم إنشاء المهمة بنجاح!',
+                        text: 'ابدأ مغامرتك الآن!',
+                        confirmButtonText: 'رائع!',
+                        confirmButtonColor: '#8b5cf6'
+                    });
+                    return;
+            }
+            
+            currentStep++;
+            updateStepContent();
+        }
+
+        // الخطوة السابقة
+        function previousStep() {
+            if (currentStep > 1) {
+                currentStep--;
+                updateStepContent();
+            }
+        }
+
+        // اختيار الأولوية
+        function selectPriority(priority) {
+            newTask.priority = priority;
+            document.querySelectorAll('.priority-btn').forEach(btn => {
+                btn.classList.remove('border-blue-500', 'bg-blue-50');
+                btn.classList.add('border-gray-300');
+            });
+            event.target.closest('.priority-btn').classList.remove('border-gray-300');
+            event.target.closest('.priority-btn').classList.add('border-blue-500', 'bg-blue-50');
+        }
+
+        // بدء العداد
+        function startTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            
+            timerInterval = setInterval(() => {
+                if (tasks.active && tasks.active.timeLeft > 0) {
+                    tasks.active.timeLeft--;
+                    saveData();
+                    
+                    const timerDisplay = document.getElementById('timerDisplay');
+                    if (timerDisplay) {
+                        timerDisplay.textContent = formatTime(tasks.active.timeLeft);
+                    }
+                    
+                    // تحديث الرسالة التحفيزية كل دقيقة
+                    if (tasks.active.timeLeft % 60 === 0) {
+                        const messageElement = document.getElementById('motivationalMessage');
+                        if (messageElement) {
+                            messageElement.textContent = getRandomMotivationalMessage();
+                        }
+                    }
+                    
+                    // انتهاء الوقت
+                    if (tasks.active.timeLeft === 0) {
+                        clearInterval(timerInterval);
+                        timerInterval = null;
+                        
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'انتهى الوقت!',
+                            text: 'فشلت المهمة... حاول مرة أخرى!',
+                            confirmButtonText: 'حسناً',
+                            confirmButtonColor: '#8b5cf6'
+                        });
+                        
+                        tasks.active = null;
+                        saveData();
+                        loadDashboard();
+                    }
+                }
+            }, 1000);
+        }
+
+        // تنسيق الوقت
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // الحصول على رسالة تحفيزية عشوائية
+        function getRandomMotivationalMessage() {
+            return motivationalMessages[Math.floor(Math.random() * motivationalMessages.length)];
+        }
+
+        // إيقاف المهمة مؤقتاً
+        function pauseTask() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+                Swal.fire({
+                    icon: 'info',
+                    title: 'تم الإيقاف المؤقت',
+                    text: 'اضغط على استمرار لاستكمال المهمة',
+                    showCancelButton: true,
+                    confirmButtonText: 'استمرار',
+                    cancelButtonText: 'إلغاء',
+                    confirmButtonColor: '#8b5cf6'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        startTimer();
+                    }
+                });
+            }
+        }
+
+        // إنجاز المهمة
+        function completeTask() {
+            if (tasks.active) {
+                // إضافة XP
+                const xpGained = 50;
+                heroData.xp += xpGained;
+                
+                // التحقق من ترقية المستوى
+                const xpNeeded = heroData.level * 100;
+                if (heroData.xp >= xpNeeded) {
+                    heroData.level++;
+                    heroData.xp -= xpNeeded;
+                    
+                    // إضافة شارة الترقية
+                    if (!heroData.badges.includes('level-up')) {
+                        heroData.badges.push('level-up');
+                    }
+                    
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'ترقية!',
+                        text: `لقد وصلت إلى المستوى ${heroData.level}!`,
+                        confirmButtonText: 'رائع!',
+                        confirmButtonColor: '#8b5cf6'
+                    });
+                }
+                
+                // التحقق من شارات الإنجاز
+                const completedCount = tasks.completed.length + 1;
+                if (completedCount === 10 && !heroData.badges.includes('productivity-expert')) {
+                    heroData.badges.push('productivity-expert');
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'شارة جديدة!',
+                        text: 'لقد حصلت على شارة "خبير الإنتاجية"!',
+                        confirmButtonText: 'رائع!',
+                        confirmButtonColor: '#8b5cf6'
+                    });
+                }
+                
+                // حفظ المهمة المكتملة
+                tasks.active.completedAt = new Date().toISOString();
+                tasks.completed.push({...tasks.active});
+                
+                // إنشاء تأثير الاحتفال
+                createConfetti();
+                
+                // تشغيل صوت الاحتفال (محاكاة)
+                console.log('🎉 صوت الاحتفال!');
+                
+                // إعادة تعيين المهمة النشطة
+                tasks.active = null;
+                
+                saveData();
+                updateHeroDisplay();
+                loadDashboard();
+                
+                Swal.fire({
+                    icon: 'success',
+                    title: 'مهمة منجزة!',
+                    text: `لقد كسبت ${xpGained} نقطة خبرة!`,
+                    confirmButtonText: 'رائع!',
+                    confirmButtonColor: '#8b5cf6'
+                });
+            }
+        }
+
+        // تخطي المهمة
+        function skipTask() {
+            Swal.fire({
+                title: 'تخطي المهمة؟',
+                text: 'هل أنت متأكد من أنك تريد تخطي هذه المهمة؟',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'نعم، تخطي',
+                cancelButtonText: 'إلغاء',
+                confirmButtonColor: '#ef4444'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    tasks.active = null;
+                    if (timerInterval) {
+                        clearInterval(timerInterval);
+                        timerInterval = null;
+                    }
+                    saveData();
+                    loadDashboard();
+                }
+            });
+        }
+
+        // إنشاء تأثير الاحتفال
+        function createConfetti() {
+            const colors = ['#f39c12', '#e74c3c', '#3498db', '#2ecc71', '#9b59b6'];
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.animationDelay = Math.random() * 0.5 + 's';
+                    document.body.appendChild(confetti);
+                    
+                    setTimeout(() => confetti.remove(), 3000);
+                }, i * 30);
+            }
+        }
+
+        // استعادة مهمة مكتملة
+        function restoreTask(index) {
+            const task = tasks.completed[index];
+            const newTask = {...task};
+            delete newTask.completedAt;
+            newTask.id = Date.now();
+            newTask.timeLeft = newTask.duration;
+            
+            tasks.active = newTask;
+            tasks.completed.splice(index, 1);
+            
+            saveData();
+            loadDashboard();
+            
+            Swal.fire({
+                icon: 'success',
+                title: 'تم استعادة المهمة!',
+                text: 'المهمة نشطة الآن',
+                confirmButtonText: 'رائع!',
+                confirmButtonColor: '#8b5cf6'
+            });
+        }
+
+        // حذف مهمة مكتملة
+        function deleteCompletedTask(index) {
+            Swal.fire({
+                title: 'حذف المهمة؟',
+                text: 'هل أنت متأكد من أنك تريد حذف هذه المهمة؟',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'نعم، احذف',
+                cancelButtonText: 'إلغاء',
+                confirmButtonColor: '#ef4444'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    tasks.completed.splice(index, 1);
+                    saveData();
+                    loadHallOfFame();
+                }
+            });
+        }
+
+        // بدء مهمة روتينية
+        function startRoutine(index) {
+            const routine = tasks.routines[index];
+            const newTask = {...routine};
+            newTask.id = Date.now();
+            newTask.timeLeft = newTask.duration;
+            
+            tasks.active = newTask;
+            saveData();
+            loadDashboard();
+            
+            Swal.fire({
+                icon: 'success',
+                title: 'بدء المهمة الروتينية!',
+                text: 'المهمة نشطة الآن',
+                confirmButtonText: 'رائع!',
+                confirmButtonColor: '#8b5cf6'
+            });
+        }
+
+        // تعديل مهمة روتينية
+        function editRoutine(index) {
+            // يمكن تنفيذ هذه الوظيفة لاحقاً
+            Swal.fire({
+                icon: 'info',
+                title: 'قيد التطوير',
+                text: 'خاصية التعديل قيد التطوير',
+                confirmButtonText: 'حسناً',
+                confirmButtonColor: '#8b5cf6'
+            });
+        }
+
+        // حذف مهمة روتينية
+        function deleteRoutine(index) {
+            Swal.fire({
+                title: 'حذف المهمة الروتينية؟',
+                text: 'هل أنت متأكد من أنك تريد حذف هذه المهمة؟',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'نعم، احذف',
+                cancelButtonText: 'إلغاء',
+                confirmButtonColor: '#ef4444'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    tasks.routines.splice(index, 1);
+                    saveData();
+                    loadRoutines();
+                }
+            });
+        }
+
+        // تعديل مهمة مستقبلية
+        function editFutureTask(index) {
+            // يمكن تنفيذ هذه الوظيفة لاحقاً
+            Swal.fire({
+                icon: 'info',
+                title: 'قيد التطوير',
+                text: 'خاصية التعديل قيد التطوير',
+                confirmButtonText: 'حسناً',
+                confirmButtonColor: '#8b5cf6'
+            });
+        }
+
+        // حذف مهمة مستقبلية
+        function deleteFutureTask(index) {
+            Swal.fire({
+                title: 'حذف المهمة المستقبلية؟',
+                text: 'هل أنت متأكد من أنك تريد حذف هذه المهمة؟',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'نعم، احذف',
+                cancelButtonText: 'إلغاء',
+                confirmButtonColor: '#ef4444'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    tasks.future.splice(index, 1);
+                    saveData();
+                    loadFutureTasks();
+                }
+            });
+        }
+
+        // تعديل الملف الشخصي
+        function editProfile() {
+            Swal.fire({
+                title: 'تعديل الملف الشخصي',
+                html: `
+                    <div class="text-right">
+                        <input type="text" id="editName" value="${heroData.name}" class="swal2-input" placeholder="اسم البطل">
+                        <div class="mt-4">
+                            <label class="block mb-2">اختر صورتك</label>
+                            <div class="grid grid-cols-4 gap-2">
+                                <button onclick="selectEditAvatar(1)" class="p-2 bg-gray-200 rounded hover:bg-purple-300 transition">
+                                    <i class="fas fa-user"></i>
+                                </button>
+                                <button onclick="selectEditAvatar(2)" class="p-2 bg-gray-200 rounded hover:bg-purple-300 transition">
+                                    <i class="fas fa-user-ninja"></i>
+                                </button>
+                                <button onclick="selectEditAvatar(3)" class="p-2 bg-gray-200 rounded hover:bg-purple-300 transition">
+                                    <i class="fas fa-user-astronaut"></i>
+                                </button>
+                                <button onclick="selectEditAvatar(4)" class="p-2 bg-gray-200 rounded hover:bg-purple-300 transition">
+                                    <i class="fas fa-user-secret"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'حفظ',
+                cancelButtonText: 'إلغاء',
+                confirmButtonColor: '#8b5cf6',
+                preConfirm: () => {
+                    const name = document.getElementById('editName').value.trim();
+                    if (!name) {
+                        Swal.showValidationMessage('الاسم مطلوب!');
+                        return false;
+                    }
+                    return { name };
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    heroData.name = result.value.name;
+                    saveData();
+                    updateHeroDisplay();
+                    loadSettings();
+                    
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'تم التحديث!',
+                        text: 'تم تحديث ملفك الشخصي بنجاح',
+                        confirmButtonText: 'رائع!',
+                        confirmButtonColor: '#8b5cf6'
+                    });
+                }
+            });
+        }
+
+        // اختيار أفاتار في التعديل
+        function selectEditAvatar(avatar) {
+            heroData.avatar = avatar;
+            saveData();
+            updateHeroDisplay();
+            loadSettings();
+        }
+
+        // تصدير البيانات
+        function exportData() {
+            const data = {
+                heroData: heroData,
+                tasks: tasks,
+                exportDate: new Date().toISOString()
+            };
+            
+            const dataStr = JSON.stringify(data, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            const exportFileDefaultName = `hero-tasks-backup-${new Date().toISOString().split('T')[0]}.json`;
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+            
+            Swal.fire({
+                icon: 'success',
+                title: 'تم التصدير!',
+                text: 'تم حفظ بياناتك بنجاح',
+                confirmButtonText: 'رائع!',
+                confirmButtonColor: '#8b5cf6'
+            });
+        }
+
+        // استيراد البيانات
+        function importData() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            
+            input.onchange = e => {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                
+                reader.onload = event => {
+                    try {
+                        const data = JSON.parse(event.target.result);
+                        
+                        if (data.heroData && data.tasks) {
+                            Swal.fire({
+                                title: 'استعادة البيانات؟',
+                                text: 'سيتم استبدال جميع بياناتك الحالية. هل تريد الاستمرار؟',
+                                icon: 'warning',
+                                showCancelButton: true,
+                                confirmButtonText: 'نعم، استعد',
+                                cancelButtonText: 'إلغاء',
+                                confirmButtonColor: '#8b5cf6'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    heroData = data.heroData;
+                                    tasks = data.tasks;
+                                    saveData();
+                                    updateHeroDisplay();
+                                    showPage('dashboard');
+                                    
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: 'تم الاستعادة!',
+                                        text: 'تم استعادة بياناتك بنجاح',
+                                        confirmButtonText: 'رائع!',
+                                        confirmButtonColor: '#8b5cf6'
+                                    });
+                                }
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'ملف غير صالح!',
+                                text: 'الملف المحدد ليس نسخة احتياطية صالحة',
+                                confirmButtonText: 'حسناً',
+                                confirmButtonColor: '#8b5cf6'
+                            });
+                        }
+                    } catch (error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'خطأ في القراءة!',
+                            text: 'لا يمكن قراءة الملف المحدد',
+                            confirmButtonText: 'حسناً',
+                            confirmButtonColor: '#8b5cf6'
+                        });
+                    }
+                };
+                
+                reader.readAsText(file);
+            };
+            
+            input.click();
+        }
+
+        // مسح البيانات
+        function clearData() {
+            Swal.fire({
+                title: 'مسح جميع البيانات؟',
+                text: 'هذا الإجراء لا يمكن التراجع عنه! سيتم حذف جميع بياناتك بشكل دائم.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'نعم، امسح الكل',
+                cancelButtonText: 'إلغاء',
+                confirmButtonColor: '#ef4444',
+                confirmButtonClass: 'bg-red-500'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    localStorage.clear();
+                    location.reload();
+                }
+            });
+        }
+
+        // بدء التطبيق
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
